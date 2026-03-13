@@ -3,6 +3,7 @@ import { supabase } from "./supabase"
 
 import FullCalendar from "@fullcalendar/react"
 import dayGridPlugin from "@fullcalendar/daygrid"
+import timeGridPlugin from "@fullcalendar/timegrid"
 import esLocale from "@fullcalendar/core/locales/es"
 
 function App(){
@@ -79,20 +80,34 @@ cargarReservas()
 
 async function borrarReserva(id){
 
+const confirmar = window.confirm("¿Seguro que quieres borrar esta reserva?")
+
+if(!confirmar){
+return
+}
+
 await supabase
 .from("reservas")
 .delete()
 .eq("id",id)
 
+setMensaje("Reserva eliminada")
+
 cargarReservas()
 
 }
 
-const eventos = reservas.map(r=>({
+const eventos = reservas.map(r => ({
 
-title: r.cliente+" "+r.hora_inicio,
-date: r.fecha,
-color: r.estado==="Ocupado" ? "#86efac" : "#fde68a"
+title: r.cliente+" "+r.hora_inicio+"-"+r.hora_fin,
+start: r.fecha,
+end: r.fecha,
+
+allDay:true,
+
+backgroundColor: r.estado==="Ocupado" ? "#86efac" : "#fde68a",
+borderColor: r.estado==="Ocupado" ? "#4ade80" : "#facc15",
+textColor:"#000"
 
 }))
 
@@ -118,67 +133,65 @@ return total + Number(r.precio)
 
 return(
 
-<div className="min-h-screen bg-blue-50 p-10 font-sans">
+<div style={{background:"#eaf3ff",minHeight:"100vh",padding:"30px",fontFamily:"Arial"}}>
 
-<h1 className="text-4xl font-bold text-blue-700 mb-8">
+<h1 style={{fontSize:"34px",color:"#2563eb",fontWeight:"bold"}}>
 Agenda de Reservas
 </h1>
 
-{mensaje && <p className="mb-4 text-green-600">{mensaje}</p>}
+<div style={{marginTop:"10px",marginBottom:"20px"}}>
 
-<div className="grid grid-cols-2 gap-6 mb-10">
+<img
+src="https://cdn-icons-png.flaticon.com/512/616/616408.png"
+style={{
+width:"100px",
+animation:"flotar 3s ease-in-out infinite"
+}}
+/>
 
-<div className="bg-white p-6 rounded-xl shadow">
-
-<h2 className="text-xl font-semibold text-blue-700 mb-2">
-Reservas del mes
-</h2>
-
-<p className="text-3xl font-bold">
-{totalReservasMes}
+<p style={{fontSize:"14px"}}>
+Ardilla supervisora 🐿️🏊
 </p>
 
 </div>
 
-<div className="bg-white p-6 rounded-xl shadow">
+{mensaje && <p style={{color:"green"}}>{mensaje}</p>}
 
-<h2 className="text-xl font-semibold text-blue-700 mb-2">
-Ingresos del mes
-</h2>
+<div style={{display:"flex",gap:"20px",marginBottom:"30px"}}>
 
-<p className="text-3xl font-bold">
-${ingresosMes}
-</p>
+<div style={{background:"white",padding:"15px",borderRadius:"10px",width:"200px"}}>
+
+<h3>Reservas del mes</h3>
+<p style={{fontSize:"28px",fontWeight:"bold"}}>{totalReservasMes}</p>
+
+</div>
+
+<div style={{background:"white",padding:"15px",borderRadius:"10px",width:"200px"}}>
+
+<h3>Ingresos del mes</h3>
+<p style={{fontSize:"28px",fontWeight:"bold"}}>${ingresosMes}</p>
 
 </div>
 
 </div>
 
-<div className="bg-white p-6 rounded-xl shadow mb-10">
+<div style={{background:"white",padding:"20px",borderRadius:"10px",marginBottom:"30px"}}>
 
-<h2 className="text-2xl font-semibold text-blue-700 mb-6">
-Nueva reserva
-</h2>
+<h2>Nueva reserva</h2>
 
-<div className="grid grid-cols-2 gap-4">
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}}>
 
-<div>
-<p>Fecha</p>
 <input
 type="date"
 value={fecha}
 onChange={(e)=>setFecha(e.target.value)}
-className="border p-2 rounded w-full"
 />
-</div>
 
-<div>
-<p>Cliente</p>
 <select
 value={cliente}
 onChange={(e)=>setCliente(e.target.value)}
-className="border p-2 rounded w-full"
 >
+
 <option></option>
 <option>Arena</option>
 <option>JB</option>
@@ -186,97 +199,120 @@ className="border p-2 rounded w-full"
 <option>Vale</option>
 <option>Pa</option>
 <option>Ma</option>
-</select>
-</div>
 
-<div>
-<p>Hora inicio</p>
+</select>
+
 <input
 type="time"
 step="1800"
 value={horaInicio}
 onChange={(e)=>setHoraInicio(e.target.value)}
-className="border p-2 rounded w-full"
 />
-</div>
 
-<div>
-<p>Hora fin</p>
 <input
 type="time"
 step="1800"
 value={horaFin}
 onChange={(e)=>setHoraFin(e.target.value)}
-className="border p-2 rounded w-full"
 />
-</div>
 
-<div>
-<p>Precio</p>
 <input
 type="number"
+placeholder="Precio"
 value={precio}
 onChange={(e)=>setPrecio(e.target.value)}
-className="border p-2 rounded w-full"
 />
-</div>
 
-<div>
-<p>Estado</p>
 <select
 value={estado}
 onChange={(e)=>setEstado(e.target.value)}
-className="border p-2 rounded w-full"
 >
+
 <option></option>
 <option>Ocupado</option>
 <option>En espera</option>
+
 </select>
-</div>
 
 </div>
 
 <button
 onClick={guardarReserva}
-className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+style={{marginTop:"15px",background:"#2563eb",color:"white",padding:"8px 15px",borderRadius:"6px"}}
 >
 Guardar reserva
 </button>
 
 </div>
 
-<div className="bg-white p-6 rounded-xl shadow mb-10">
+<div style={{background:"white",padding:"20px",borderRadius:"10px",marginBottom:"30px"}}>
 
-<h2 className="text-2xl font-semibold text-blue-700 mb-4">
-Calendario
-</h2>
+<h2>Calendario</h2>
 
 <FullCalendar
-plugins={[dayGridPlugin]}
+plugins={[dayGridPlugin,timeGridPlugin]}
 initialView="dayGridMonth"
-events={eventos}
 locale={esLocale}
+height={650}
+
+headerToolbar={{
+left:"prev,next today",
+center:"title",
+right:"dayGridMonth,timeGridWeek"
+}}
+
+events={eventos}
+
+eventTextColor="#000"
+
+dateClick={(info)=>{
+
+const yaReservado = reservas.find(r => r.fecha === info.dateStr)
+
+if(yaReservado){
+alert("Ese día ya está reservado")
+return
+}
+
+setFecha(info.dateStr)
+
+}}
+
+eventClick={(info)=>{
+
+const reserva = reservas.find(r => r.fecha === info.event.startStr)
+
+if(reserva){
+
+setFecha(reserva.fecha)
+setHoraInicio(reserva.hora_inicio)
+setHoraFin(reserva.hora_fin)
+setCliente(reserva.cliente)
+setPrecio(reserva.precio)
+setEstado(reserva.estado)
+
+}
+
+}}
 />
 
 </div>
 
-<div className="bg-white p-6 rounded-xl shadow">
+<div style={{background:"white",padding:"20px",borderRadius:"10px"}}>
 
-<h2 className="text-2xl font-semibold text-blue-700 mb-4">
-Reservas
-</h2>
+<h2>Reservas</h2>
 
-<table className="w-full border">
+<table style={{width:"100%",textAlign:"center"}}>
 
-<thead className="bg-blue-100">
+<thead style={{background:"#dbeafe"}}>
 
 <tr>
-<th className="p-2">Fecha</th>
-<th className="p-2">Cliente</th>
-<th className="p-2">Horario</th>
-<th className="p-2">Precio</th>
-<th className="p-2">Estado</th>
-<th className="p-2">Borrar</th>
+<th>Fecha</th>
+<th>Cliente</th>
+<th>Horario</th>
+<th>Precio</th>
+<th>Estado</th>
+<th>Borrar</th>
 </tr>
 
 </thead>
@@ -284,21 +320,23 @@ Reservas
 <tbody>
 
 {reservas.map(r=>(
-<tr key={r.id} className="text-center border">
+<tr key={r.id}>
 
-<td className="p-2">{r.fecha}</td>
-<td className="p-2">{r.cliente}</td>
-<td className="p-2">{r.hora_inicio} - {r.hora_fin}</td>
-<td className="p-2">${r.precio}</td>
-<td className="p-2">{r.estado}</td>
+<td>{r.fecha}</td>
+<td>{r.cliente}</td>
+<td>{r.hora_inicio} - {r.hora_fin}</td>
+<td>${r.precio}</td>
+<td>{r.estado}</td>
 
-<td className="p-2">
+<td>
+
 <button
 onClick={()=>borrarReserva(r.id)}
-className="bg-red-500 text-white px-3 py-1 rounded"
+style={{background:"#ef4444",color:"white",borderRadius:"4px"}}
 >
 X
 </button>
+
 </td>
 
 </tr>
