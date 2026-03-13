@@ -143,8 +143,6 @@ textColor:"#fff"
 
 }))
 
-/* RESUMEN MENSUAL */
-
 const resumenMes = {}
 
 reservas.forEach(r=>{
@@ -175,7 +173,7 @@ color:"#1d4ed8",
 fontWeight:"bold",
 textAlign:"center"
 }}>
-Sistema de Reservas de Piscina
+Agenda Alberca
 </h1>
 
 <div style={{textAlign:"center",marginTop:"20px"}}>
