@@ -3,7 +3,6 @@ import { supabase } from "./supabase"
 
 import FullCalendar from "@fullcalendar/react"
 import dayGridPlugin from "@fullcalendar/daygrid"
-import timeGridPlugin from "@fullcalendar/timegrid"
 import esLocale from "@fullcalendar/core/locales/es"
 
 function App(){
@@ -34,14 +33,23 @@ setReservas(data || [])
 
 async function guardarReserva(){
 
+if(!fecha || !horaInicio || !horaFin || !cliente || !precio || !estado){
+
+setMensaje("Debes llenar todos los campos")
+return
+
+}
+
 const { data } = await supabase
 .from("reservas")
 .select("*")
 .eq("fecha",fecha)
 
 if(data.length>0){
+
 setMensaje("Ese día ya tiene una reserva")
 return
+
 }
 
 const { error } = await supabase
@@ -97,102 +105,99 @@ cargarReservas()
 
 }
 
+function generarHoras(){
+
+const horas=[]
+
+for(let h=0;h<24;h++){
+
+horas.push(`${String(h).padStart(2,'0')}:00`)
+horas.push(`${String(h).padStart(2,'0')}:30`)
+
+}
+
+return horas
+
+}
+
+const horas = generarHoras()
+
 const eventos = reservas.map(r => ({
 
 title: r.cliente+" "+r.hora_inicio+"-"+r.hora_fin,
-start: r.fecha,
-end: r.fecha,
 
-allDay:true,
+date: r.fecha,
 
-backgroundColor: r.estado==="Ocupado" ? "#86efac" : "#fde68a",
-borderColor: r.estado==="Ocupado" ? "#4ade80" : "#facc15",
-textColor:"#000"
+backgroundColor: r.estado==="Ocupado" ? "#166534" : "#facc15",
+
+borderColor:"#000",
+
+textColor:"#fff"
 
 }))
 
-const mesActual = new Date().getMonth()
-const anioActual = new Date().getFullYear()
-
-const reservasMes = reservas.filter(r=>{
-
-const fechaReserva = new Date(r.fecha)
-
-return fechaReserva.getMonth()===mesActual &&
-fechaReserva.getFullYear()===anioActual
-
-})
-
-const totalReservasMes = reservasMes.length
-
-const ingresosMes = reservasMes.reduce((total,r)=>{
-
-return total + Number(r.precio)
-
-},0)
-
 return(
 
-<div style={{background:"#eaf3ff",minHeight:"100vh",padding:"30px",fontFamily:"Arial"}}>
+<div style={{background:"#eef6ff",minHeight:"100vh",padding:"30px",fontFamily:"Arial"}}>
 
-<h1 style={{fontSize:"34px",color:"#2563eb",fontWeight:"bold"}}>
-Agenda de Reservas
+<h1 style={{
+fontSize:"40px",
+color:"#1d4ed8",
+fontWeight:"bold",
+textAlign:"center"
+}}>
+Sistema de Reservas de Piscina
 </h1>
 
-<div style={{marginTop:"10px",marginBottom:"20px"}}>
+<div style={{display:"flex",justifyContent:"space-between",marginTop:"20px"}}>
 
-<img
-src="https://cdn-icons-png.flaticon.com/512/616/616408.png"
-style={{
-width:"100px",
-animation:"flotar 3s ease-in-out infinite"
-}}
-/>
+<div style={{textAlign:"center"}}>
 
-<p style={{fontSize:"14px"}}>
-Ardilla supervisora 🐿️🏊
-</p>
+<div style={{fontSize:"50px",animation:"nadar 4s infinite"}}>
+🐿️
+</div>
+
+<p>Ardilla salvavidas</p>
 
 </div>
 
-{mensaje && <p style={{color:"green"}}>{mensaje}</p>}
+<div style={{textAlign:"center"}}>
 
-<div style={{display:"flex",gap:"20px",marginBottom:"30px"}}>
-
-<div style={{background:"white",padding:"15px",borderRadius:"10px",width:"200px"}}>
-
-<h3>Reservas del mes</h3>
-<p style={{fontSize:"28px",fontWeight:"bold"}}>{totalReservasMes}</p>
-
+<div style={{fontSize:"50px",animation:"nadar 5s infinite"}}>
+🐕
 </div>
 
-<div style={{background:"white",padding:"15px",borderRadius:"10px",width:"200px"}}>
-
-<h3>Ingresos del mes</h3>
-<p style={{fontSize:"28px",fontWeight:"bold"}}>${ingresosMes}</p>
+<p>Crixo el American Bully</p>
 
 </div>
 
 </div>
 
-<div style={{background:"white",padding:"20px",borderRadius:"10px",marginBottom:"30px"}}>
+{mensaje && <p style={{color:"green",marginTop:"10px"}}>{mensaje}</p>}
+
+<div style={{background:"white",padding:"20px",borderRadius:"10px",marginTop:"20px"}}>
 
 <h2>Nueva reserva</h2>
 
 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}}>
 
+<div>
+<p>Fecha</p>
 <input
 type="date"
 value={fecha}
 onChange={(e)=>setFecha(e.target.value)}
 />
+</div>
 
+<div>
+<p>Cliente</p>
 <select
 value={cliente}
 onChange={(e)=>setCliente(e.target.value)}
 >
 
-<option></option>
+<option value="">Seleccionar</option>
 <option>Arena</option>
 <option>JB</option>
 <option>Jessi</option>
@@ -201,104 +206,110 @@ onChange={(e)=>setCliente(e.target.value)}
 <option>Ma</option>
 
 </select>
+</div>
 
-<input
-type="time"
-step="1800"
+<div>
+<p>Hora inicio</p>
+<select
 value={horaInicio}
 onChange={(e)=>setHoraInicio(e.target.value)}
-/>
+>
 
-<input
-type="time"
-step="1800"
+<option value="">Seleccionar</option>
+
+{horas.map(h=>(
+<option key={h}>{h}</option>
+))}
+
+</select>
+</div>
+
+<div>
+<p>Hora fin</p>
+<select
 value={horaFin}
 onChange={(e)=>setHoraFin(e.target.value)}
-/>
+>
 
+<option value="">Seleccionar</option>
+
+{horas.map(h=>(
+<option key={h}>{h}</option>
+))}
+
+</select>
+</div>
+
+<div>
+<p>Precio ($)</p>
 <input
 type="number"
-placeholder="Precio"
 value={precio}
 onChange={(e)=>setPrecio(e.target.value)}
 />
+</div>
 
+<div>
+<p>Estado</p>
 <select
 value={estado}
 onChange={(e)=>setEstado(e.target.value)}
 >
 
-<option></option>
+<option value="">Seleccionar</option>
 <option>Ocupado</option>
 <option>En espera</option>
 
 </select>
+</div>
 
 </div>
 
 <button
 onClick={guardarReserva}
-style={{marginTop:"15px",background:"#2563eb",color:"white",padding:"8px 15px",borderRadius:"6px"}}
+style={{
+marginTop:"15px",
+background:"#2563eb",
+color:"white",
+padding:"10px 20px",
+borderRadius:"6px"
+}}
 >
 Guardar reserva
 </button>
 
 </div>
 
-<div style={{background:"white",padding:"20px",borderRadius:"10px",marginBottom:"30px"}}>
+<div style={{background:"white",padding:"20px",borderRadius:"10px",marginTop:"30px"}}>
 
 <h2>Calendario</h2>
 
 <FullCalendar
-plugins={[dayGridPlugin,timeGridPlugin]}
+plugins={[dayGridPlugin]}
 initialView="dayGridMonth"
 locale={esLocale}
 height={650}
-
-headerToolbar={{
-left:"prev,next today",
-center:"title",
-right:"dayGridMonth,timeGridWeek"
-}}
-
 events={eventos}
-
-eventTextColor="#000"
 
 dateClick={(info)=>{
 
 const yaReservado = reservas.find(r => r.fecha === info.dateStr)
 
 if(yaReservado){
+
 alert("Ese día ya está reservado")
 return
+
 }
 
 setFecha(info.dateStr)
-
-}}
-
-eventClick={(info)=>{
-
-const reserva = reservas.find(r => r.fecha === info.event.startStr)
-
-if(reserva){
-
-setFecha(reserva.fecha)
-setHoraInicio(reserva.hora_inicio)
-setHoraFin(reserva.hora_fin)
-setCliente(reserva.cliente)
-setPrecio(reserva.precio)
-setEstado(reserva.estado)
-
-}
 
 }}
 />
 
 </div>
 
-<div style={{background:"white",padding:"20px",borderRadius:"10px"}}>
+<div style={{background:"white",padding:"20px",borderRadius:"10px",marginTop:"30px"}}>
 
 <h2>Reservas</h2>
 
@@ -332,7 +343,7 @@ setEstado(reserva.estado)
 
 <button
 onClick={()=>borrarReserva(r.id)}
-style={{background:"#ef4444",color:"white",borderRadius:"4px"}}
+style={{background:"#ef4444",color:"white"}}
 >
 X
 </button>
