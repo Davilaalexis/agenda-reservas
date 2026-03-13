@@ -76,11 +76,7 @@ setMensaje("Reserva guardada correctamente")
 
 setGif("guardar")
 
-setTimeout(()=>{
-
-setGif("")
-
-},3000)
+setTimeout(()=>{ setGif("") },3000)
 
 setFecha("")
 setHoraInicio("")
@@ -99,9 +95,7 @@ async function borrarReserva(id){
 
 const confirmar = window.confirm("¿Seguro que quieres borrar esta reserva?")
 
-if(!confirmar){
-return
-}
+if(!confirmar) return
 
 await supabase
 .from("reservas")
@@ -112,11 +106,7 @@ setMensaje("Reserva eliminada")
 
 setGif("borrar")
 
-setTimeout(()=>{
-
-setGif("")
-
-},3000)
+setTimeout(()=>{ setGif("") },3000)
 
 cargarReservas()
 
@@ -153,6 +143,28 @@ textColor:"#fff"
 
 }))
 
+/* RESUMEN MENSUAL */
+
+const resumenMes = {}
+
+reservas.forEach(r=>{
+
+const mes = r.fecha.substring(0,7)
+
+if(!resumenMes[mes]){
+
+resumenMes[mes] = {
+reservas:0,
+ingresos:0
+}
+
+}
+
+resumenMes[mes].reservas += 1
+resumenMes[mes].ingresos += Number(r.precio)
+
+})
+
 return(
 
 <div style={{background:"#eef6ff",minHeight:"100vh",padding:"30px",fontFamily:"Arial"}}>
@@ -170,38 +182,27 @@ Sistema de Reservas de Piscina
 
 <img
 src="https://cdn.vox-cdn.com/uploads/chorus_image/image/69281705/shrek4_disneyscreencaps.com_675.0.jpg"
-style={{
-width:"400px",
-borderRadius:"10px"
-}}
+style={{width:"400px",borderRadius:"10px"}}
 />
 
 </div>
 
 {gif==="guardar" && (
-
 <div style={{textAlign:"center",marginTop:"20px"}}>
-
 <img
 src="https://tse2.mm.bing.net/th/id/OIP.CHLd2_icPr1T8fbPBddHCgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
 style={{width:"200px"}}
 />
-
 </div>
-
 )}
 
 {gif==="borrar" && (
-
 <div style={{textAlign:"center",marginTop:"20px"}}>
-
 <img
 src="https://media.tenor.com/yIWyg_2g9EgAAAAM/feyresmaid.gif"
 style={{width:"200px"}}
 />
-
 </div>
-
 )}
 
 {mensaje && <p style={{color:"green",marginTop:"10px"}}>{mensaje}</p>}
@@ -214,19 +215,12 @@ style={{width:"200px"}}
 
 <div>
 <p>Fecha</p>
-<input
-type="date"
-value={fecha}
-onChange={(e)=>setFecha(e.target.value)}
-/>
+<input type="date" value={fecha} onChange={(e)=>setFecha(e.target.value)} />
 </div>
 
 <div>
 <p>Cliente</p>
-<select
-value={cliente}
-onChange={(e)=>setCliente(e.target.value)}
->
+<select value={cliente} onChange={(e)=>setCliente(e.target.value)}>
 <option value="">Seleccionar</option>
 <option>Arena</option>
 <option>JB</option>
@@ -239,45 +233,28 @@ onChange={(e)=>setCliente(e.target.value)}
 
 <div>
 <p>Hora inicio</p>
-<select
-value={horaInicio}
-onChange={(e)=>setHoraInicio(e.target.value)}
->
+<select value={horaInicio} onChange={(e)=>setHoraInicio(e.target.value)}>
 <option value="">Seleccionar</option>
-{horas.map(h=>(
-<option key={h}>{h}</option>
-))}
+{horas.map(h=>(<option key={h}>{h}</option>))}
 </select>
 </div>
 
 <div>
 <p>Hora fin</p>
-<select
-value={horaFin}
-onChange={(e)=>setHoraFin(e.target.value)}
->
+<select value={horaFin} onChange={(e)=>setHoraFin(e.target.value)}>
 <option value="">Seleccionar</option>
-{horas.map(h=>(
-<option key={h}>{h}</option>
-))}
+{horas.map(h=>(<option key={h}>{h}</option>))}
 </select>
 </div>
 
 <div>
 <p>Precio ($)</p>
-<input
-type="number"
-value={precio}
-onChange={(e)=>setPrecio(e.target.value)}
-/>
+<input type="number" value={precio} onChange={(e)=>setPrecio(e.target.value)} />
 </div>
 
 <div>
 <p>Estado</p>
-<select
-value={estado}
-onChange={(e)=>setEstado(e.target.value)}
->
+<select value={estado} onChange={(e)=>setEstado(e.target.value)}>
 <option value="">Seleccionar</option>
 <option>Ocupado</option>
 <option>En espera</option>
@@ -311,21 +288,6 @@ initialView="dayGridMonth"
 locale={esLocale}
 height={650}
 events={eventos}
-
-dateClick={(info)=>{
-
-const yaReservado = reservas.find(r => r.fecha === info.dateStr)
-
-if(yaReservado){
-
-alert("Ese día ya está reservado")
-return
-
-}
-
-setFecha(info.dateStr)
-
-}}
 />
 
 </div>
@@ -337,7 +299,6 @@ setFecha(info.dateStr)
 <table style={{width:"100%",textAlign:"center"}}>
 
 <thead style={{background:"#dbeafe"}}>
-
 <tr>
 <th>Fecha</th>
 <th>Cliente</th>
@@ -346,31 +307,55 @@ setFecha(info.dateStr)
 <th>Estado</th>
 <th>Borrar</th>
 </tr>
-
 </thead>
 
 <tbody>
 
 {reservas.map(r=>(
 <tr key={r.id}>
-
 <td>{r.fecha}</td>
 <td>{r.cliente}</td>
 <td>{r.hora_inicio} - {r.hora_fin}</td>
 <td>${r.precio}</td>
 <td>{r.estado}</td>
-
 <td>
-
 <button
 onClick={()=>borrarReserva(r.id)}
 style={{background:"#ef4444",color:"white"}}
 >
 X
 </button>
-
 </td>
+</tr>
+))}
 
+</tbody>
+
+</table>
+
+</div>
+
+<div style={{background:"white",padding:"20px",borderRadius:"10px",marginTop:"30px"}}>
+
+<h2>Resumen mensual</h2>
+
+<table style={{width:"100%",textAlign:"center"}}>
+
+<thead style={{background:"#bfdbfe"}}>
+<tr>
+<th>Mes</th>
+<th>Reservas</th>
+<th>Ingresos</th>
+</tr>
+</thead>
+
+<tbody>
+
+{Object.keys(resumenMes).map(mes=>(
+<tr key={mes}>
+<td>{mes}</td>
+<td>{resumenMes[mes].reservas}</td>
+<td>${resumenMes[mes].ingresos}</td>
 </tr>
 ))}
 
