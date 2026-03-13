@@ -15,6 +15,7 @@ const [precio,setPrecio] = useState("")
 const [estado,setEstado] = useState("")
 const [reservas,setReservas] = useState([])
 const [mensaje,setMensaje] = useState("")
+const [gif,setGif] = useState("")
 
 useEffect(()=>{
 cargarReservas()
@@ -73,6 +74,14 @@ setMensaje("Error al guardar")
 
 setMensaje("Reserva guardada correctamente")
 
+setGif("guardar")
+
+setTimeout(()=>{
+
+setGif("")
+
+},3000)
+
 setFecha("")
 setHoraInicio("")
 setHoraFin("")
@@ -100,6 +109,14 @@ await supabase
 .eq("id",id)
 
 setMensaje("Reserva eliminada")
+
+setGif("borrar")
+
+setTimeout(()=>{
+
+setGif("")
+
+},3000)
 
 cargarReservas()
 
@@ -149,29 +166,43 @@ textAlign:"center"
 Sistema de Reservas de Piscina
 </h1>
 
-<div style={{display:"flex",justifyContent:"space-between",marginTop:"20px"}}>
+<div style={{textAlign:"center",marginTop:"20px"}}>
 
-<div style={{textAlign:"center"}}>
-
-<div style={{fontSize:"50px",animation:"nadar 4s infinite"}}>
-🐿️
-</div>
-
-<p>Ardilla salvavidas</p>
-
-</div>
-
-<div style={{textAlign:"center"}}>
-
-<div style={{fontSize:"50px",animation:"nadar 5s infinite"}}>
-🐕
-</div>
-
-<p>Crixo el American Bully</p>
+<img
+src="https://cdn.vox-cdn.com/uploads/chorus_image/image/69281705/shrek4_disneyscreencaps.com_675.0.jpg"
+style={{
+width:"400px",
+borderRadius:"10px"
+}}
+/>
 
 </div>
 
+{gif==="guardar" && (
+
+<div style={{textAlign:"center",marginTop:"20px"}}>
+
+<img
+src="https://tse2.mm.bing.net/th/id/OIP.CHLd2_icPr1T8fbPBddHCgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
+style={{width:"200px"}}
+/>
+
 </div>
+
+)}
+
+{gif==="borrar" && (
+
+<div style={{textAlign:"center",marginTop:"20px"}}>
+
+<img
+src="https://media.tenor.com/yIWyg_2g9EgAAAAM/feyresmaid.gif"
+style={{width:"200px"}}
+/>
+
+</div>
+
+)}
 
 {mensaje && <p style={{color:"green",marginTop:"10px"}}>{mensaje}</p>}
 
@@ -196,7 +227,6 @@ onChange={(e)=>setFecha(e.target.value)}
 value={cliente}
 onChange={(e)=>setCliente(e.target.value)}
 >
-
 <option value="">Seleccionar</option>
 <option>Arena</option>
 <option>JB</option>
@@ -204,7 +234,6 @@ onChange={(e)=>setCliente(e.target.value)}
 <option>Vale</option>
 <option>Pa</option>
 <option>Ma</option>
-
 </select>
 </div>
 
@@ -214,13 +243,10 @@ onChange={(e)=>setCliente(e.target.value)}
 value={horaInicio}
 onChange={(e)=>setHoraInicio(e.target.value)}
 >
-
 <option value="">Seleccionar</option>
-
 {horas.map(h=>(
 <option key={h}>{h}</option>
 ))}
-
 </select>
 </div>
 
@@ -230,13 +256,10 @@ onChange={(e)=>setHoraInicio(e.target.value)}
 value={horaFin}
 onChange={(e)=>setHoraFin(e.target.value)}
 >
-
 <option value="">Seleccionar</option>
-
 {horas.map(h=>(
 <option key={h}>{h}</option>
 ))}
-
 </select>
 </div>
 
@@ -255,11 +278,9 @@ onChange={(e)=>setPrecio(e.target.value)}
 value={estado}
 onChange={(e)=>setEstado(e.target.value)}
 >
-
 <option value="">Seleccionar</option>
 <option>Ocupado</option>
 <option>En espera</option>
-
 </select>
 </div>
 
